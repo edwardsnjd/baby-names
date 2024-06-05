@@ -14,8 +14,12 @@ WELSH_MALE_NAMES_TARGET := welsh-names-male.csv
 WELSH_FEMALE_NAMES_TARGET := welsh-names-female.csv
 WELSH_NAMES_TARGETS := $(WELSH_MALE_NAMES_TARGET) $(WELSH_FEMALE_NAMES_TARGET)
 
+SCOTTISH_MALE_NAMES_TARGET := scottish-names-male.csv
+SCOTTISH_FEMALE_NAMES_TARGET := scottish-names-female.csv
+SCOTTISH_NAMES_TARGETS := $(SCOTTISH_MALE_NAMES_TARGET) $(SCOTTISH_FEMALE_NAMES_TARGET)
+
 .PHONY: build
-build: $(US_NAMES_TARGETS) $(WELSH_NAMES_TARGETS)
+build: $(US_NAMES_TARGETS) $(WELSH_NAMES_TARGETS) $(SCOTTISH_NAMES_TARGETS)
 
 .PHONY: clean
 clean:
@@ -73,3 +77,18 @@ $(WELSH_FEMALE_NAMES_TARGET): $(WELSH_FEMALE_NAMES_HTML)
 .INTERMEDIATE: $(WELSH_FEMALE_NAMES_HTML)
 $(WELSH_FEMALE_NAMES_HTML):
 	curl --silent $(WELSH_FEMALE_NAMES_URLS) > $@
+
+# Scottish names recipes
+
+SCOTTISH_NAMES_URL := https://www.nrscotland.gov.uk/files/statistics/pop-names-07-t4.csv
+SCOTTISH_NAMES_CSV := scottish-names.csv
+
+$(SCOTTISH_MALE_NAMES_TARGET): $(SCOTTISH_NAMES_CSV)
+	cut -d, -f1 < $< | tail +3 | sort -u > $@
+
+$(SCOTTISH_FEMALE_NAMES_TARGET): $(SCOTTISH_NAMES_CSV)
+	cut -d, -f4 < $< | tail +3 | sort -u > $@
+
+.INTERMEDIATE: $(SCOTTISH_NAMES_CSV)
+$(SCOTTISH_NAMES_CSV):
+	curl -s $(SCOTTISH_NAMES_URL) | tail +3 > $@
